@@ -1,0 +1,92 @@
+---
+title: "Sharafi_HW6"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(modelr)
+```
+
+## Question 1
+First read the Data
+```{r, include=FALSE}
+pn <- read_csv("~/Desktop/ES207/HW/es207_hw3/data/eesR/R/Data/pollution.csv", col_names = TRUE, na = c("NA", "n/p", "n/a"), guess_max = 30000)
+
+```
+Draw scatter plot of **mortality rat** versus level of **nitric oxides**
+```{r}
+p <- ggplot(pn, aes(x =nox, y = mort)) + 
+  theme_bw() +geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") + ylim(c(600,1100))
+p
+```
+Create the regression model 
+```{r}
+lm1 <- lm(mort ~ nox, data = pn)
+summary(lm1)
+```
+Since the R-squared in **negative**, The mean of the data provides a better fit to the outcomes than do the fitted function values.Then fit the regression with ressidual in to the plot 
+```{r}
+pn$predicted <- predict(lm1)
+pn$residuals <- residuals(lm1)
+pn %>% 
+  ggplot(aes(x = nox, y = mort)) +
+  theme_bw()+
+  geom_segment(aes(xend = nox, yend = predicted), alpha = .75) +
+  geom_point(aes(color = residuals)) +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red") +
+  guides(color = FALSE) +
+  geom_point(aes(y = predicted), shape = 1)
+```
+
+Definitely need transformation 
+## Question 2
+In **4b** we use 'ln' for transformation, and tranformed 'nox'
+```{r}
+ ggplot(pn, aes(x = log(nox), y = mort )) + 
+  theme_bw() +geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") + ylim(c(700,1200))
+```
+
+And ressidual plot.
+```{r}
+lm2 <- lm(mort ~ log(nox), data = pn)
+pn$predicted <- predict(lm2)
+pn$residuals <- residuals(lm2)
+pn %>% 
+  ggplot(aes(x = log(nox), y = mort  )) +
+  theme_bw()+
+  geom_segment(aes(xend = log(nox), yend = predicted), alpha = .75) +
+  geom_point(aes(color = residuals)) +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red") +
+  guides(color = FALSE) +
+  geom_point(aes(y = predicted), shape = 1)
+```
+
+In **4c** find the slope with summary 
+```{r}
+lm2 <- lm(mort ~ log(nox), data = pn)
+summary(lm2)
+```
+The slope is  15.335 ,the change in **mortality rat** for a unit change in **nitric oxides**.Which represents the change in the response variable,mort  per unit change in the predictor here nox .  
+
+## Question 5
+4d in Qian. 
+```{r}
+# Model predicting mortality rate using levels of:
+# HC     Relative hydrocarbon pollution potential
+# NOX    Same for nitric oxides
+# SO2    Same for sulphur dioxide
+
+lm4d <- lm(mort~nox + hc + so2, data = pn)
+summary(lm4d)
+```
+
+
+```{r}
+
+```
+
+
